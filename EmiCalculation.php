@@ -36,7 +36,7 @@ Class EmiCalculation{
 */
     public function __contruct(){
         //importing CI environment
-        $CI =& get_instance();
+        //$CI =& get_instance();
     }
 
 /*
@@ -61,6 +61,7 @@ Class EmiCalculation{
         $this->setPeriodInterest();
         $this->EmiType();
     }
+	
 
 
 
