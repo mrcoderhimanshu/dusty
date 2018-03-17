@@ -81,6 +81,20 @@ Class EmiCalculation{
 
 	public $response = array();
 
+
+
+/*
+* @Description : Construction to import the CI environment
+* @ method : __construct (magic function auto call out)
+* @ params : null
+* @ return : null
+*/
+	public function __contruct(){
+		//importing CI environment
+		//$CI =& get_instance();
+	}
+
+
 /*
 * @Method : 
 * @Description : CalEmi
@@ -103,6 +117,7 @@ Class EmiCalculation{
 		$this->loanType  = $loanType;
 		$this->setPeriodInterest();
 		$this->EmiType();
+		return $this->response;
 		
 	}
 
@@ -177,7 +192,7 @@ Class EmiCalculation{
 */
 	private function ReducingCal(){
         //$emI = $amount*$rate*(pow(1+$rate, $term)/ (pow(1+$rate, $term)-1));
-		$this->term = $this->setEMITerm();
+		$this->term = $this->setEMITerm();	
         $this->eachEMI = $this->principal*$this->periodInterest*(pow(1+$this->periodInterest, $this->term)/ (pow(1+$this->periodInterest, $this->term)-1));
 		//now we need to create a schedule
 		$this->createScheduler();
@@ -242,7 +257,7 @@ Class EmiCalculation{
 			$postLoanAmount = $this->eachEMI - $loanRate;
 			$result[$index]['emi_count'] = $i;
 			$result[$index]['begining_balance'] = $loanAmount;
-			$result[$index]['emi'] = $this->eachEMI;
+			$result[$index]['emi'] = round($this->eachEMI, 2);
 			$result[$index]['principal'] = round(($this->eachEMI - $loanRate),2);
 			$result[$index]['Intrest'] = round($loanRate,2);
 			$result[$index]['ending_balance'] = round(($loanAmount-$postLoanAmount),2);
