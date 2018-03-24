@@ -75,12 +75,28 @@ Class EmiCalculation{
 	*/
 	private $inYear = array('numberOfMonths' => 12, 'numberOfDays' => 365, 'numberOfWeeks' => 52, 'numberOfHalfMonth'=> 24, 'numberOfQuaters'=> 4, 'numberOfHalfYearly'=> 2);
 
-
+	/*
+	* contains the emi amount for each duration
+	* 	
+	* @access : private
+	* @dataType : int 
+	*/
 	private $eachEMI = 0;
 
-
+	/*
+	* final output array containing the schedular
+	* 	
+	* @access : public
+	* @dataType : array 
+	*/
 	public $response = array();
 
+	/*
+	* start date after which we have to generate the emi schedular
+	* 	
+	* @access : public
+	* @dataType : date 
+	*/
 	public $startDate = '';
 
 
@@ -109,7 +125,7 @@ Class EmiCalculation{
 *           (int)$loanType : default 1 (Reducing), 2 (Flat)
 * @return:
 */
-	public function CalEmi($principal, $tenure, $tenureType, $rate, $emiMode, $startDate, $loanType = 1){
+	public function CalEmi($principal, $tenure, $tenureType, $rate, $emiMode, $startDate = null, $loanType = 1){
 		
 		$this->principal = $principal;
 		$this->tenure    = $tenure;
@@ -174,14 +190,19 @@ Class EmiCalculation{
 	private function EmiType(){
         switch($this->loanType){
             case 1:
-                //here we calculate flat intrest rate
+                //here we calculate intrest rate at reucing
                 $this->ReducingCal();
             break;
 
             case 2:
-                // here we calculate at reducing rate
+                // here we calculate intrest rate at flat 
                 $this->FlatCal();
-            break;
+			break;
+			
+			case 3:
+				// here we calculate intrest rate at flexi 
+				$this->FlexiCal();
+			break;
         }
 	}
 	
@@ -216,6 +237,18 @@ Class EmiCalculation{
 		// now we need to create a schedule
 		$this->createFlatScheduler();
 	}	
+
+/*
+* @Method : FlexiCal
+* @Description : Calculate the emi at flat rate of intrest for the given param
+* @Type : private
+* @param: N/A
+* @return: N/A
+*/	
+	private function FlexiCal(){
+		//$this->FlexiRateCal();
+
+	}
 
 /*
 * @Method : setEMITerm
@@ -285,9 +318,7 @@ Class EmiCalculation{
 			$result[$index]['principal'] = round(($this->eachEMI - $loanRate),2);
 			$result[$index]['Interest'] = round($loanRate,2);
 			$result[$index]['ending_balance'] = round(($loanAmount-$postLoanAmount),2);
-			if($i == 1){
-				$result[$index]['emiDate'] = $this->startDate;
-			}else{
+			if($this->startDate != null){
 				$result[$index]['emiDate'] = $this->nextEMIDate($i);
 			}
 			$loanAmount = round(($loanAmount-$postLoanAmount),2);
@@ -317,9 +348,7 @@ Class EmiCalculation{
 			$result[$index]['principal'] = round($termPrincipalPart, 2);
 			$result[$index]['interest'] =  round($eachTermRatePart,2);
 			$result[$index]['ending_balance'] = round(($loanAmount-$termPrincipalPart),2);
-			if($i == 1){
-				$result[$index]['emiDate'] = $this->startDate;
-			}else{
+			if($this->startDate != null){
 				$result[$index]['emiDate'] = $this->nextEMIDate($i);
 			}
 			$loanAmount = round(($loanAmount-$termPrincipalPart),2);
@@ -328,7 +357,13 @@ Class EmiCalculation{
 		$this->response = $result;
 	}
 
-
+/*
+* @Method : nextEMIDate
+* @Description : It will calculate the dates for the emi to be paied
+* @Type : private
+* @param:   (int)$emiNumber
+* @return: (date)date on which we need to pay the emi
+*/
 	private function nextEMIDate($emiNumber){
 		switch ($this->tenureScale[$this->emiMode]) {
 			case 'DAILY':
@@ -340,7 +375,24 @@ Class EmiCalculation{
 				$date = strtotime("+".$emiNumber." week", strtotime($this->startDate));
 				$newDate = date("Y-m-d", $date);
 				break;
+
+			case 'MONTHLY':
+				$date = strtotime("+".$emiNumber." month", strtotime($this->startDate));
+				$newDate = date("Y-m-d", $date);
+				break;
+
+			case 'QUATERLY':
+				$months = $emiNumber*3;
+				$date = strtotime("+".$months." month", strtotime($this->startDate));
+				$newDate = date("Y-m-d", $date);
+				break;
 			
+			case 'HALF_YEARLY':
+				$months = $emiNumber*6;
+				$date = strtotime("+".$months." month", strtotime($this->startDate));
+				$newDate = date("Y-m-d", $date);
+				break;
+
 			default:
 				# code...
 				break;

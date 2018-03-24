@@ -10,8 +10,8 @@ $loanType = $_POST['loanType'];
 $date = $_POST['emiDate'];
 $emi = new EmiCalculation();
 $data = $emi->CalEmi($principal, $tenure, $tenureType, $rate, $emiMode, $date, $loanType);
-echo '<pre>';
-print_r($data);die();
+//echo '<pre>';
+//print_r($data);die();
 ?>
 <table border=1>
     <tr>
@@ -29,7 +29,7 @@ print_r($data);die();
             <td><?php echo $entry['begining_balance'];?></td>
             <td><?php echo $entry['emi'];?></td>
             <td><?php echo $entry['principal'];?></td>
-            <td><?php echo $entry['Interest'];?></td>
+            <td><?php echo $entry['interest'];?></td>
             <td><?php echo $entry['emiDate'];?></td>
             <td><?php echo $entry['ending_balance'];?></td>
         <tr>

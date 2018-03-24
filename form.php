@@ -8,6 +8,9 @@
 <style>
     .padB{ margin-bottom: 10px;}
 </style>
+<script>
+    $('.datepicker').datepicker();
+</script>
 </head>
 <body>
     <br/>
@@ -88,7 +91,7 @@
                     <label>Emi Date</label>
                 </div>
                 <div class="col-md-6">
-                    <input class="form-control" id="emiDate" placeholder="Date Y-m-d format" name="emiDate" value="" required="" type="text">
+                    <input class="form-control datepicker" id="emiDate" placeholder="Date Y-m-d format" name="emiDate" value="" required="" type="text">
                 </div>
             </div>
             <div class="row padB">
