@@ -6,8 +6,12 @@ $rate = $_POST['rate'];
 $tenure = $_POST['tenure'];
 $tenureType = $_POST['tenureType'];
 $emiMode = $_POST['emiMode'];
+$loanType = $_POST['loanType'];
+$date = $_POST['emiDate'];
 $emi = new EmiCalculation();
-$data = $emi->CalEmi($principal, $tenure, $tenureType, $rate, $emiMode);
+$data = $emi->CalEmi($principal, $tenure, $tenureType, $rate, $emiMode, $date, $loanType);
+echo '<pre>';
+print_r($data);die();
 ?>
 <table border=1>
     <tr>
@@ -16,6 +20,7 @@ $data = $emi->CalEmi($principal, $tenure, $tenureType, $rate, $emiMode);
         <td>Emi</td>
         <td>Principal</td>
         <td>Intrest</td>
+        <td>Emi Date</td>
         <td>Ending Balance</td>
     </tr>
     <?php foreach($data as $entry){ ?> 
@@ -24,7 +29,8 @@ $data = $emi->CalEmi($principal, $tenure, $tenureType, $rate, $emiMode);
             <td><?php echo $entry['begining_balance'];?></td>
             <td><?php echo $entry['emi'];?></td>
             <td><?php echo $entry['principal'];?></td>
-            <td><?php echo $entry['Intrest'];?></td>
+            <td><?php echo $entry['Interest'];?></td>
+            <td><?php echo $entry['emiDate'];?></td>
             <td><?php echo $entry['ending_balance'];?></td>
         <tr>
     <?php } ?>

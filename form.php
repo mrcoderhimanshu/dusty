@@ -72,6 +72,27 @@
             </div>
             <div class="row padB">
                 <div class="col-md-6">
+                    <label>Loan Type</label>
+                </div>
+                <div class="col-md-6">
+                    <select name="loanType" class="form-control" require="">
+                        <option value="0">Select Loan Type</option>
+                        <option value="1">Reducing</option>
+                        <option value="2">Flat</option>
+                        <option value="3">Flexi</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row padB">
+                <div class="col-md-6">
+                    <label>Emi Date</label>
+                </div>
+                <div class="col-md-6">
+                    <input class="form-control" id="emiDate" placeholder="Date Y-m-d format" name="emiDate" value="" required="" type="text">
+                </div>
+            </div>
+            <div class="row padB">
+                <div class="col-md-6">
                     <label></label>
                 </div>
                 <div class="col-md-6">

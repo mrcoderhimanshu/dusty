@@ -81,6 +81,8 @@ Class EmiCalculation{
 
 	public $response = array();
 
+	public $startDate = '';
+
 
 
 /*
@@ -107,7 +109,7 @@ Class EmiCalculation{
 *           (int)$loanType : default 1 (Reducing), 2 (Flat)
 * @return:
 */
-	public function CalEmi($principal, $tenure, $tenureType, $rate, $emiMode, $loanType = 1){
+	public function CalEmi($principal, $tenure, $tenureType, $rate, $emiMode, $startDate, $loanType = 1){
 		
 		$this->principal = $principal;
 		$this->tenure    = $tenure;
@@ -115,6 +117,7 @@ Class EmiCalculation{
 		$this->rate 	 = $rate;
 		$this->emiMode   = $emiMode;
 		$this->loanType  = $loanType;
+		$this->startDate = $startDate;
 		$this->setPeriodInterest();
 		$this->EmiType();
 		return $this->response;
@@ -195,9 +198,24 @@ Class EmiCalculation{
 		$this->term = $this->setEMITerm();	
         $this->eachEMI = $this->principal*$this->periodInterest*(pow(1+$this->periodInterest, $this->term)/ (pow(1+$this->periodInterest, $this->term)-1));
 		//now we need to create a schedule
-		$this->createScheduler();
+		$this->createReducingScheduler();
 	}
-	
+
+/*
+* @Method : FlatCal
+* @Description : Calculate the emi at flat rate of intrest for the given param
+* @Type : private
+* @param: N/A
+* @return: N/A
+*/
+	private function FlatCal(){
+		//$emi = (principal + Interest)/period in months
+		$this->term = $this->setEMITerm();
+		$this->periodInterest = ($this->principal/$this->rate)*$this->tenure;
+		$this->eachEMI = ($this->principal+$this->periodInterest)/$this->term;
+		// now we need to create a schedule
+		$this->createFlatScheduler();
+	}	
 
 /*
 * @Method : setEMITerm
@@ -246,8 +264,14 @@ Class EmiCalculation{
 		return ${$this->tenureScale[$this->emiMode]}[$this->tenureScale[$this->tenureType]]*$this->tenure;
 	}
 
-
-	private function createScheduler(){
+/*
+* @Method : createReducingScheduler
+* @Description : It will create an array for the schedule output
+* @Type : private
+* @param:   N/A
+* @return: N/A
+*/
+	private function createReducingScheduler(){
 		$loanAmount = $this->principal;
 		$initalLoanAmount = 0;
 		$postLoanAmount = 0;
@@ -259,12 +283,69 @@ Class EmiCalculation{
 			$result[$index]['begining_balance'] = $loanAmount;
 			$result[$index]['emi'] = round($this->eachEMI, 2);
 			$result[$index]['principal'] = round(($this->eachEMI - $loanRate),2);
-			$result[$index]['Intrest'] = round($loanRate,2);
+			$result[$index]['Interest'] = round($loanRate,2);
 			$result[$index]['ending_balance'] = round(($loanAmount-$postLoanAmount),2);
+			if($i == 1){
+				$result[$index]['emiDate'] = $this->startDate;
+			}else{
+				$result[$index]['emiDate'] = $this->nextEMIDate($i);
+			}
 			$loanAmount = round(($loanAmount-$postLoanAmount),2);
 			$index++;
 		}
 		$this->response = $result;
+	}
+
+/*
+* @Method : createFlatScheduler
+* @Description : It will create an array for the schedule output for flat calculation
+* @Type : private
+* @param:   N/A
+* @return: N/A
+*/
+	private function createFlatScheduler(){
+		$loanAmount = $this->principal;
+		$eachTermRatePart = 0;
+		$termPrincipalPart = 0;
+		$index =0;
+		for($i=1; $i<=$this->term; $i++){
+			$eachTermRatePart = $this->periodInterest/$this->term;
+			$termPrincipalPart = $this->eachEMI - $eachTermRatePart;
+			$result[$index]['emi_count'] = $i;
+			$result[$index]['begining_balance'] = $loanAmount;
+			$result[$index]['emi'] = round($this->eachEMI, 2);
+			$result[$index]['principal'] = round($termPrincipalPart, 2);
+			$result[$index]['interest'] =  round($eachTermRatePart,2);
+			$result[$index]['ending_balance'] = round(($loanAmount-$termPrincipalPart),2);
+			if($i == 1){
+				$result[$index]['emiDate'] = $this->startDate;
+			}else{
+				$result[$index]['emiDate'] = $this->nextEMIDate($i);
+			}
+			$loanAmount = round(($loanAmount-$termPrincipalPart),2);
+			$index++;
+		}
+		$this->response = $result;
+	}
+
+
+	private function nextEMIDate($emiNumber){
+		switch ($this->tenureScale[$this->emiMode]) {
+			case 'DAILY':
+				$date = strtotime("+".$emiNumber." days", strtotime($this->startDate));
+				$newDate = date("Y-m-d", $date);
+				break;
+
+			case 'WEEKLY':
+				$date = strtotime("+".$emiNumber." week", strtotime($this->startDate));
+				$newDate = date("Y-m-d", $date);
+				break;
+			
+			default:
+				# code...
+				break;
+		}
+		return $newDate;
 	}
 }
 ?>
